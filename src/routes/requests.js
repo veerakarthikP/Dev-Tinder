@@ -13,12 +13,14 @@ requestsRouter.post(
       const { status, toUserId } = req.params;
       const allowedStatus = ["ignored", "interested"];
       if (!allowedStatus.includes(status)) {
-        res.status(400).json({ message: "Invalid status type: " + status });
+        return res
+          .status(400)
+          .json({ message: "Invalid status type: " + status });
       }
 
       const toUser = await User.findById(toUserId);
       if (!toUser) {
-        res.status(400).json({ message: "User not found" });
+        return res.status(400).json({ message: "User not found" });
       }
 
       const existingRequest = await ConnectionRequest.findOne({
@@ -28,7 +30,9 @@ requestsRouter.post(
         ],
       });
       if (existingRequest) {
-        res.status(400).json({ message: "Connection Request Already Exist!!" });
+        return res
+          .status(400)
+          .json({ message: "Connection Request Already Exist!!" });
       }
       const connectionRequest = new ConnectionRequest({
         fromUserId,
