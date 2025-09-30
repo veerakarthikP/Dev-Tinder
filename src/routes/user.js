@@ -14,9 +14,18 @@ userRouter.get("/user/requests/received", userAuth, async (req, res) => {
       status: "interested",
     }).populate("fromUserId", USER_SAFE_DATA);
 
+    let data = connectionRequests.map((row) => {
+      if (row.fromUserId._id.toString() === loggedInUser._id.toString()) {
+        return row.toUserId;
+      }
+      return row.fromUserId;
+    });
+
+    data = await User.find({ _id: { $in: data } });
+
     res.json({
       message: "Data feteched successfully!!",
-      data: connectionRequests,
+      data: data,
     });
   } catch (err) {
     res.status(400).send("ERROR: " + err.message);
@@ -35,12 +44,18 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
       .populate("fromUserId", USER_SAFE_DATA)
       .populate("toUserId", USER_SAFE_DATA);
 
-    res.json({
-      message: "Data feteched successfully!!",
-      data: connectionRequests,
+    let data = connectionRequests.map((row) => {
+      if (row.fromUserId._id.toString() === loggedInUser._id.toString()) {
+        return row.toUserId;
+      }
+      return row.fromUserId;
     });
+
+    data = await User.find({ _id: { $in: data } });
+
+    res.json({ data });
   } catch (err) {
-    res.status(400).send("ERROR: " + err.message);
+    res.status(400).send({ message: err.message });
   }
 });
 
